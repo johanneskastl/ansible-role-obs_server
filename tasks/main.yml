@@ -1,0 +1,55 @@
+---
+# obs_server/tasks/main.yml
+
+- name: 'Fail if this is an unsupported OS or OS version'
+  ansible.builtin.fail:
+    msg: 'OBS only supports SLES15 SP3, SLES SP4, openSUSE Leap 15.3 or 15.4'
+  when:
+    - not (ansible_distribution_version == "15.3" or "15.4")
+    - not (ansible_distribution == "openSUSE Leap" or ansible_distribution == "SLES")
+
+- name: 'Include obs_installation.yml'
+  ansible.builtin.include_tasks: obs_installation.yml
+
+- name: 'Change /etc/alternatives/rake to use rake.ruby2.7'
+  ansible.builtin.file:
+    src: '/usr/bin/rake.ruby.ruby2.7'
+    dest: '/etc/alternatives/rake'
+    state: 'link'
+
+- name: 'Include obs_configuration.yml'
+  ansible.builtin.include_tasks: obs_configuration.yml
+
+- name: 'Include tls_certificate.yml'
+  ansible.builtin.include_tasks: tls_certificate.yml
+
+- name: 'Include mysql_setup.yml'
+  ansible.builtin.include_tasks: mysql_setup.yml
+
+- name: 'Include mysql_obs_databases.yml'
+  ansible.builtin.include_tasks: mysql_obs_databases.yml
+
+- name: 'Include apache2.yml'
+  ansible.builtin.include_tasks: apache2.yml
+
+- name: 'Include obs_services.yml'
+  ansible.builtin.include_tasks: obs_services.yml
+
+- name: 'Include api.yml'
+  ansible.builtin.include_tasks: api.yml
+
+- name: 'Create /etc/issue'
+  ansible.builtin.template:
+    src: 'etc_issue.j2'
+    dest: '/etc/issue'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Create '
+  ansible.builtin.template:
+    src: 'index.html.j2'
+    dest: '/srv/www/obs/overview/index.html'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
