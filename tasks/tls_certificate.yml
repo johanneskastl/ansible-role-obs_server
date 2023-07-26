@@ -1,0 +1,41 @@
+---
+# obs_server/tasks/tls_certificate.yml
+
+- name: 'Create directory /srv/obs/certs/'
+  ansible.builtin.file:
+    path: '/srv/obs/certs/'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+
+- name: 'Install python3-cryptography'
+  community.general.zypper:
+    name: 'python3-cryptography'
+    state: 'present'
+
+- name: 'Create a TLS private key'
+  community.crypto.openssl_privatekey:
+    path: '/srv/obs/certs/server.key'
+
+- name: 'Create a TLS certificate signing request'
+  community.crypto.openssl_csr:
+    path: '/srv/obs/certs/server.csr'
+    privatekey_path: '/srv/obs/certs/server.key'
+    common_name: "{{ hostvars[inventory_hostname]['ansible_fqdn'] }}"
+    subject_alt_name: "DNS:localhost,IP:{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+- name: 'Create a self-signed TLS certificate'
+  community.crypto.x509_certificate:
+    path: "/srv/obs/certs/server.{{ hostvars[inventory_hostname]['ansible_fqdn'] }}.crt"
+    privatekey_path: '/srv/obs/certs/server.key'
+    csr_path: '/srv/obs/certs/server.csr'
+    provider: selfsigned
+  notify:
+    - 'Create server.FQDN.created file in /srv/obs/certs/'
+
+- name: 'Create link /srv/obs/certs/server.crt'
+  ansible.builtin.file:
+    src: "server.{{ hostvars[inventory_hostname]['ansible_fqdn'] }}.crt"
+    dest: '/srv/obs/certs/server.crt'
+    state: 'link'
