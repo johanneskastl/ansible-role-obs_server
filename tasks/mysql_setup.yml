@@ -1,0 +1,81 @@
+---
+
+- name: 'Start and enable the mariadb.service'
+  ansible.builtin.service:
+    name: 'mariadb.service'
+    state: 'started'
+    enabled: true
+
+- name: 'Change datadir line in /etc/my.cnf'
+  ansible.builtin.lineinfile:
+    path: '/etc/my.cnf'
+    regex: 'datadir'
+    line: 'datadir    = /srv/obs/MySQL'
+    owner: 'root'
+    group: 'mysql'
+    mode: '0644'
+
+- name: 'Run mysql_install_db'
+  ansible.builtin.command:
+    cmd: '/usr/bin/mysql_install_db'
+    creates: '/srv/obs/MySQL/'
+  notify:
+    - 'Restart mariadb.service'
+
+- name: 'Flush handlers to restart mariadb, if required'
+  ansible.builtin.meta: flush_handlers
+
+- name: 'Change permissions on /srv/obs/MySQL/ and subdirectories'
+  ansible.builtin.file:
+    path: '/srv/obs/MySQL/'
+    state: 'directory'
+    recurse: true
+    owner: 'mysql'
+    group: 'mysql'
+    mode: '0700'
+
+- name: 'Set root password'
+  community.mysql.mysql_user:
+    name: 'root'
+    host_all: true
+    password: '{{ mysql_root_password | mandatory }}'
+    state: 'present'
+    login_user: 'root'
+    login_password: "{{ mysql_root_password }}"
+
+- name: 'Make sure the test database is absent'
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: 'root'
+    login_password: "{{ mysql_root_password }}"
+
+- name: 'Make sure that anonymous users are absent'
+  community.mysql.mysql_user:
+    name: ''
+    state: absent
+    host_all: true
+    login_user: 'root'
+    login_password: "{{ mysql_root_password }}"
+
+- name: 'Remove remote root'
+  community.mysql.mysql_query:
+    query:
+      - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+    login_user: 'root'
+    login_password: "{{ mysql_root_password }}"
+
+- name: 'Create database.yml'
+  ansible.builtin.template:
+    src: 'database.yml.j2'
+    dest: '/srv/www/obs/api/config/database.yml'
+    owner: 'root'
+    group: 'www'
+    mode: '0640'
+  notify:
+    - 'Run rake db:create'
+    - 'Run rake db:setup'
+    - 'Run rake writeconfiguration'
+
+- name: 'Flush handlers to run rake tasks, if required'
+  ansible.builtin.meta: flush_handlers
