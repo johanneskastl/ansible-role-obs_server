@@ -1,0 +1,38 @@
+---
+# obs_server/handlers/main.yml
+
+- name: 'Create server.FQDN.created file in /srv/obs/certs/'
+  ansible.builtin.file:
+    path: "/srv/obs/certs/server.{{ hostvars[inventory_hostname]['ansible_fqdn'] }}.created"
+    state: 'touch'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    modification_time: 'preserve'
+    access_time: 'preserve'
+
+- name: 'Restart mariadb.service'
+  ansible.builtin.service:
+    name: 'mariadb.service'
+    state: 'restarted'
+
+- name: 'Run rake db:create'
+  ansible.builtin.command:
+    cmd: 'rake db:create'
+    chdir: '/srv/www/obs/api/'
+  environment:
+    RAILS_ENV: "production"
+
+- name: 'Run rake db:setup'
+  ansible.builtin.command:
+    cmd: 'rake db:setup'
+    chdir: '/srv/www/obs/api/'
+  environment:
+    RAILS_ENV: "production"
+
+- name: 'Run rake writeconfiguration'
+  ansible.builtin.command:
+    cmd: 'rake writeconfiguration'
+    chdir: '/srv/www/obs/api/'
+  environment:
+    RAILS_ENV: "production"
