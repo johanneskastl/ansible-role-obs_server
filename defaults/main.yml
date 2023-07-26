@@ -1,0 +1,4 @@
+---
+# obs_server/defaults/main.yml
+
+obs_server_version: '2.10'
