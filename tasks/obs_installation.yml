@@ -1,0 +1,28 @@
+---
+# obs_server/tasks/obs_installation.yml
+
+- name: 'Add OBS repository'
+  community.general.zypper_repository:
+    repo: "https://download.opensuse.org/repositories/OBS:/Server:/{{ obs_server_version }}/{{ ansible_distribution_version }}/"
+    name: "OBS-Server"
+    enabled: true
+    autorefresh: true
+    state: 'present'
+    runrefresh: true
+    auto_import_keys: true
+
+###- name: 'Install OBS_Server pattern'
+###  community.general.zypper:
+###    name: 'OBS_Server'
+###    state: 'present'
+###    type: 'pattern'
+
+- name: 'Install OBS server packages directly'
+  community.general.zypper:
+    name:
+      - 'obs-server'
+      - 'obs-worker'
+      - 'obs-api'
+      - 'obs-signd'
+      - 'obs-source_service'
+    state: 'present'
