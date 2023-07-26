@@ -1,0 +1,24 @@
+galaxy_info:
+  role_name: 'obs_server'
+  namespace: 'johanneskastl'
+  author: 'Johannes Kastl'
+  description: 'Install and configure a OpenBuildService server'
+  company: 'B1 Systems GmbH'
+
+  license: 'BSD-3-Clause'
+
+  min_ansible_version: '2.12'
+
+  platforms:
+    - name: opensuse
+      versions:
+        - '15.3'
+        - '15.4'
+    - name: SLES
+      versions:
+        - '15SP3'
+        - '15SP4'
+
+  galaxy_tags: []
+
+dependencies: []
