@@ -1,0 +1,128 @@
+---
+# obs_server/tasks/obs_configuration.yml
+
+- name: 'Create directory /srv/obs/'
+  ansible.builtin.file:
+    path: '/srv/obs/'
+    state: 'directory'
+    owner: 'obsrun'
+    group: 'obsrun'
+    mode: '0775'
+
+- name: 'Create directory /srv/obs/repos/'
+  ansible.builtin.file:
+    path: '/srv/obs/repos/'
+    state: 'directory'
+    owner: 'obsrun'
+    group: 'obsrun'
+    mode: '0755'
+
+- name: 'Create directory /srv/www/obs/'
+  ansible.builtin.file:
+    path: '/srv/www/obs/'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+
+- name: 'Create directory /srv/www/obs/api/log/'
+  ansible.builtin.file:
+    path: '/srv/www/obs/api/log/'
+    state: 'directory'
+    recurse: true
+    owner: 'wwwrun'
+    group: 'www'
+
+- name: 'Set owner of /srv/www/obs/api/log and /srv/www/obs/api/tmp to wwwrun.www'
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: 'directory'
+    owner: 'wwwrun'
+    group: 'www'
+    mode: '0755'
+  loop:
+    - '/srv/www/obs/api/log'
+    - '/srv/www/obs/api/tmp'
+
+- name: 'Create /usr/lib/obs/server/BSConfig.pm'
+  ansible.builtin.template:
+    src: 'BSConfig.pm.j2'
+    dest: '/usr/lib/obs/server/BSConfig.pm'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Create /etc/sysconfig/obs-server'
+  ansible.builtin.template:
+    src: 'etc_sysconfig_obs-server.j2'
+    dest: '/etc/sysconfig/obs-server'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+#
+# OBS signer configuration
+#
+
+- name: 'Set permissions of /usr/bin/sign'
+  ansible.builtin.file:
+    path: '/usr/bin/sign'
+    owner: 'root'
+    group: 'obsrun'
+    mode: '4755'
+
+- name: 'Create /etc/sign.conf'
+  ansible.builtin.template:
+    src: 'sign.conf.j2'
+    dest: '/etc/sign.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Create directory /srv/obs/gnupg/'
+  ansible.builtin.file:
+    path: '/srv/obs/gnupg/'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+
+- name: 'Create directory /srv/obs/gnupg/phrases/'
+  ansible.builtin.file:
+    path: '/srv/obs/gnupg/phrases/'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+
+- name: 'Create file /srv/obs/gnupg/phrases/defaultkey@localobs'
+  ansible.builtin.file:
+    path: '/srv/obs/gnupg/phrases/defaultkey@localobs'
+    state: 'touch'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    modification_time: 'preserve'
+    access_time: 'preserve'
+
+- name: 'Create batch file for GPG key creation'
+  ansible.builtin.template:
+    src: 'obs-gpg.j2'
+    dest: '/tmp/obs-gpg'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+
+- name: 'Create GPG key'
+  ansible.builtin.command:
+    cmd: 'gpg2 --homedir /srv/obs/gnupg/ --batch --gen-key /tmp/obs-gpg'
+    chdir: '/srv/obs/gnupg/'
+    creates: '/srv/obs/gnupg/pubring.kbx'
+
+- name: 'Export GPG pubkey'
+  ansible.builtin.shell:
+    cmd: 'gpg2 --homedir /srv/obs/gnupg/ --export -a > /srv/obs/gnupg/obs-default-gpg.asc'
+    chdir: '/srv/obs/gnupg/'
+    creates: '/srv/obs/gnupg/obs-default-gpg.asc'
+
+# ToDo: remove /tmp/obs-gpg
