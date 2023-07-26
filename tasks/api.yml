@@ -1,0 +1,27 @@
+---
+# obs_server/tasks/api.yml
+
+- name: 'Create options.yml'
+  ansible.builtin.template:
+    src: 'options.yml.j2'
+    dest: '/srv/www/obs/api/config/options.yml'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Enable OBS API services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    # - 'obsapidelayed.service'
+    - 'obs-api-support.target'
+    - 'memcached.service'
+
+- name: 'Start OBS API services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: 'started'
+  loop:
+    # - 'obsapidelayed.service'
+    - 'memcached.service'
