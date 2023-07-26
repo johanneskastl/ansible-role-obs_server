@@ -1,0 +1,23 @@
+---
+
+- name: 'Create database api_production'
+  community.mysql.mysql_db:
+    name: 'api_production'
+    state: 'present'
+    encoding: 'utf8mb4'
+    collation: 'utf8mb4_unicode_ci'
+    login_user: 'root'
+    login_password: "{{ mysql_root_password }}"
+  notify:
+    - 'Run rake db:setup'
+    - 'Run rake writeconfiguration'
+
+- name: 'Create obs database user'
+  community.mysql.mysql_user:
+    name: "{{ mysql_obs_username }}"
+    password: "{{ mysql_obs_password }}"
+    state: 'present'
+    # GRANT all privileges ON api_production.* TO 'obs'@'%', 'obs'@'localhost';
+    priv: 'api_production.*:ALL'
+    login_user: 'root'
+    login_password: "{{ mysql_root_password }}"
