@@ -1,0 +1,17 @@
+# MySQL (default setup).  Versions 4.1 and 5.0 are recommended.
+#
+# Get the fast C bindings:
+#   gem install mysql
+#   (on OS X: gem install mysql -- --include=/usr/local/lib)
+# And be sure to use new-style password hashing:
+#   http://dev.mysql.com/doc/refman/5.0/en/old-client.html
+
+production:
+  adapter: mysql2
+  database: api_production
+  username: {{ mysql_obs_username }}
+  password: {{ mysql_obs_password }}
+  encoding: utf8mb4
+  collation: utf8mb4_unicode_ci
+  timeout: 15
+  pool: 30
