@@ -1,0 +1,78 @@
+---
+# obs_server/tasks/obs_services.yml
+
+- name: 'Enable all necessary OBS services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - 'obsrepserver.service'
+    - 'obssrcserver.service'
+    - 'obsscheduler.service'
+    - 'obsdispatcher.service'
+    - 'obspublisher.service'
+    - 'obsdodup.service'
+    - 'obsdeltastore.service'
+    - 'obssigner.service'
+    - 'obssignd.service'
+    - 'obsservicedispatch'
+
+- name: 'Enable all recommended OBS services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - 'obswarden.service'
+    - 'obsapisetup'
+    - 'obsstoragesetup'
+    - 'obsworker'
+    - 'obsservice.service'
+
+- name: 'Start all necessary OBS services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: 'started'
+  loop:
+    - 'obsrepserver.service'
+    - 'obssrcserver.service'
+    - 'obsscheduler.service'
+    - 'obsdispatcher.service'
+    - 'obspublisher.service'
+    - 'obsdodup.service'
+    - 'obsdeltastore.service'
+    - 'obssigner.service'
+    - 'obssignd.service'
+    - 'obsservicedispatch'
+
+- name: 'Start all recommended OBS services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: 'started'
+  loop:
+    - 'obswarden.service'
+    - 'obsapisetup'
+    - 'obsstoragesetup'
+    - 'obsworker'
+    - 'obsservice.service'
+
+- name: 'Enable optional OBS cloud services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - 'obsclouduploadworker.service'
+    - 'obsclouduploadserver.service'
+  when:
+    - 'enable_cloud_services is defined'
+    - 'enable_cloud_services | bool'
+
+- name: 'Start optional OBS cloud services'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: 'started'
+  loop:
+    - 'obsclouduploadworker.service'
+    - 'obsclouduploadserver.service'
+  when:
+    - 'enable_cloud_services is defined'
+    - 'enable_cloud_services | bool'
