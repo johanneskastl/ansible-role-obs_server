@@ -11,12 +11,6 @@
     runrefresh: true
     auto_import_keys: true
 
-###- name: 'Install OBS_Server pattern'
-###  community.general.zypper:
-###    name: 'OBS_Server'
-###    state: 'present'
-###    type: 'pattern'
-
 - name: 'Install OBS server packages directly'
   community.general.zypper:
     name:
