@@ -1,0 +1,99 @@
+---
+# obs_server/tasks/apache2.yml
+
+- name: 'Install apache2 packages'
+  community.general.zypper:
+    name:
+      - 'obs-api'
+      - 'apache2'
+      - 'apache2-mod_xforward'
+      - 'rubygem-passenger-apache2'
+      - 'memcached'
+    state: 'present'
+
+- name: 'Enable apache modules in /etc/sysconfig/apache2'
+  ansible.builtin.lineinfile:
+    path: '/etc/sysconfig/apache2'
+    state: 'present'
+    regex: '^APACHE_MODULES'
+    line: 'APACHE_MODULES="actions alias auth_basic authn_core authn_file authz_host authz_groupfile authz_core authz_user autoindex cgi dir env expires include log_config mime negotiation setenvif ssl socache_shmcb userdir reqtimeout passenger rewrite proxy proxy_http xforward headers"'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Enable SSL in /etc/sysconfig/apache2'
+  ansible.builtin.lineinfile:
+    path: '/etc/sysconfig/apache2'
+    state: 'present'
+    regex: '^APACHE_SERVER_FLAGS='
+    line: 'APACHE_SERVER_FLAGS="SSL"'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Comment out PassengerPreStart line in obs.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/apache2/vhosts.d/obs.conf'
+    state: 'present'
+    regex: '^\s{8}PassengerPreStart\shttps'
+    line: '        # DISABLED by Ansible PassengerPreStart https://api'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Add PassengerPreStart line outside of VirtualHost in obs.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/apache2/vhosts.d/obs.conf'
+    state: 'present'
+    regex: '^PassengerPreStart'
+    line: 'PassengerPreStart https://api'
+    insertbefore: '^# OBS WEBUI & API'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Add missing lines to /etc/apache2/loadmodule.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/apache2/loadmodule.conf'
+    state: 'present'
+    regex: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  loop:
+    - line: 'LoadModule passenger_module               /usr/lib64/apache2/mod_passenger.so'
+      regex: '^LoadModule\spassenger_module'
+    - line: 'LoadModule xforward_module                /usr/lib64/apache2/mod_xforward.so'
+      regex: '^LoadModule\sxforward_module'
+    - line: 'LoadModule headers_module                 /usr/lib64/apache2-prefork/mod_headers.so'
+      regex: '^LoadModule\sheaders_module'
+    - line: 'LoadModule proxy_module                   /usr/lib64/apache2-prefork/mod_proxy.so'
+      regex: '^LoadModule\sproxy_module'
+  when:
+    - 'ansible_distribution_version == "15.4"'
+
+- name: 'Change ruby executable path in /etc/apache2/conf.d/mod_passenger.conf'
+  ansible.builtin.lineinfile:
+    path: '/etc/apache2/conf.d/mod_passenger.conf'
+    state: 'present'
+    regex: '^(\s*)PassengerRuby "/usr/bin/ruby"'
+    line: '\1PassengerRuby "/usr/bin/ruby.ruby2.7"'
+    backrefs: true
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: 'Enable the apache2 service'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - 'apache2.service'
+
+- name: 'Start the apache2 service'
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: 'started'
+  loop:
+    - 'apache2.service'
