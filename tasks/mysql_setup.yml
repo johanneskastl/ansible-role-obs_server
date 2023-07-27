@@ -64,14 +64,3 @@
       - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
     login_user: 'root'
     login_password: "{{ mysql_root_password }}"
-
-- name: 'Create database.yml'
-  ansible.builtin.template:
-    src: 'database.yml.j2'
-    dest: '/srv/www/obs/api/config/database.yml'
-    owner: 'root'
-    group: 'www'
-    mode: '0640'
-
-- name: 'Flush handlers to run rake tasks, if required'
-  ansible.builtin.meta: flush_handlers
