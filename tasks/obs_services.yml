@@ -23,7 +23,6 @@
     enabled: true
   loop:
     - 'obswarden.service'
-    - 'obsapisetup'
     - 'obsstoragesetup'
     - 'obsworker'
     - 'obsservice.service'
@@ -50,7 +49,6 @@
     state: 'started'
   loop:
     - 'obswarden.service'
-    - 'obsapisetup'
     - 'obsstoragesetup'
     - 'obsworker'
     - 'obsservice.service'
