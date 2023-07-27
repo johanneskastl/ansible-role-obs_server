@@ -11,3 +11,8 @@ enable_recommended_services: true
 # - obsclouduploadworker.service
 # - obsclouduploadserver.service
 enable_cloud_services: false
+
+# OBS needs a TLS certificate, by default this role
+# creates a self-signed certificate. If this is not desired,
+# set this variable to false
+create_self_signed_tls_certificate: true
