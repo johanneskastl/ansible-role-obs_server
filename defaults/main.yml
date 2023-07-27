@@ -3,6 +3,9 @@
 
 obs_server_version: '2.10'
 
+# enable recommended OBS services by default
+enable_recommended_services: true
+
 # by default, no cloud services are being enabled or started
 #
 # - obsclouduploadworker.service
