@@ -22,6 +22,8 @@
 
 - name: 'Include tls_certificate.yml'
   ansible.builtin.include_tasks: tls_certificate.yml
+  when:
+    - 'create_self_signed_tls_certificate | bool'
 
 - name: 'Include obs_services.yml'
   ansible.builtin.include_tasks: obs_services.yml
