@@ -26,6 +26,8 @@
     - 'obsstoragesetup'
     - 'obsworker'
     - 'obsservice.service'
+  when:
+    - 'enable_recommended_services | bool'
 
 - name: 'Start all necessary OBS services'
   ansible.builtin.service:
@@ -52,6 +54,8 @@
     - 'obsstoragesetup'
     - 'obsworker'
     - 'obsservice.service'
+  when:
+    - 'enable_recommended_services | bool'
 
 - name: 'Enable optional OBS cloud services'
   ansible.builtin.service:
