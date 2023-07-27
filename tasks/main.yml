@@ -23,6 +23,9 @@
 - name: 'Include tls_certificate.yml'
   ansible.builtin.include_tasks: tls_certificate.yml
 
+- name: 'Include obs_services.yml'
+  ansible.builtin.include_tasks: obs_services.yml
+
 - name: 'Include mysql_setup.yml'
   ansible.builtin.include_tasks: mysql_setup.yml
 
@@ -31,9 +34,6 @@
 
 - name: 'Include apache2.yml'
   ansible.builtin.include_tasks: apache2.yml
-
-- name: 'Include obs_services.yml'
-  ansible.builtin.include_tasks: obs_services.yml
 
 - name: 'Include api.yml'
   ansible.builtin.include_tasks: api.yml
