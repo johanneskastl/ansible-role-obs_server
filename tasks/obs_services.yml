@@ -61,7 +61,6 @@
     - 'obsclouduploadworker.service'
     - 'obsclouduploadserver.service'
   when:
-    - 'enable_cloud_services is defined'
     - 'enable_cloud_services | bool'
 
 - name: 'Start optional OBS cloud services'
@@ -72,5 +71,4 @@
     - 'obsclouduploadworker.service'
     - 'obsclouduploadserver.service'
   when:
-    - 'enable_cloud_services is defined'
     - 'enable_cloud_services | bool'
