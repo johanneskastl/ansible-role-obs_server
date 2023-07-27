@@ -2,3 +2,9 @@
 # obs_server/defaults/main.yml
 
 obs_server_version: '2.10'
+
+# by default, no cloud services are being enabled or started
+#
+# - obsclouduploadworker.service
+# - obsclouduploadserver.service
+enable_cloud_services: false
