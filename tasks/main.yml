@@ -53,3 +53,11 @@
     owner: 'root'
     group: 'root'
     mode: '0644'
+
+- name: 'Change ownership on directory /srv/www/obs/api/log/ and files in it'
+  ansible.builtin.file:
+    path: '/srv/www/obs/api/log/'
+    state: 'directory'
+    recurse: true
+    owner: 'wwwrun'
+    group: 'www'
