@@ -5,6 +5,12 @@ obs_server
 
 Install and configure a OpenBuildService server
 
+**Attention**
+
+This role is very much work in progress, nowhere near to feature-complete. It
+only covers the OBS server to the point, where the UI loads successfully. No
+workers are configured, no settings tweaked.
+
 Requirements
 ------------
 
