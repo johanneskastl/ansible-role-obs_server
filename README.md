@@ -52,9 +52,14 @@ None
 Example Playbook
 ----------------
 
-    - hosts: servers
+    - hosts: obs-server
       roles:
         - role: 'johanneskastl.obs_server'
+          # you should really not set the passwords in the playbook...
+          # use Ansible-Vault-encrypted host variables, please
+          mysql_root_password: 'totallysecret'
+          mysql_obs_username: 'obs'
+          mysql_obs_password: 'somerandompassword'
 
 License
 -------
