@@ -1,5 +1,3 @@
-![Ansible Lint](https://github.com/johanneskastl/ansible-role-obs_server/workflows/Ansible%20Lint/badge.svg)
-
 obs_server
 =========
 
